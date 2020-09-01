@@ -6,6 +6,21 @@
 ![last-commit](https://badgen.net/github/last-commit/jin-yufeng/Parser)
 ![license](https://badgen.net/github/license/jin-yufeng/Parser)  
 
+## 测试邀请 ##
+为解决 [表格中的链接无法点击](https://jin-yufeng.github.io/Parser/#/question?id=%e8%a1%a8%e6%a0%bc%e4%b8%ad%e7%9a%84%e9%93%be%e6%8e%a5%e6%97%a0%e6%b3%95%e7%82%b9%e5%87%bb) 的问题，测试版通过 `grid` 布局模拟含有合并单元格的表格，基本解决这个问题，现邀请大家进行测试  
+微信端：  
+源码引入：[dev 版本](https://github.com/jin-yufeng/Parser/tree/develop/parser)  
+`npm` 引入：`npm install parser-wx@beta`  
+
+`uni-app` 端：  
+源码引入：[dev 版本](https://github.com/jin-yufeng/Parser/tree/develop/parser.uni)  
+
+主要关注的问题：  
+1. `grid` 布局是否在一些机型上不支持（已知微信 `pc` 端 [不支持](https://developers.weixin.qq.com/community/develop/doc/000a04a89d049839f5a994e285b800?highLine=pc%2520grid)）  
+2. 含有合并单元格且表格内含链接的表格表现是否正常  
+
+如发现问题欢迎通过 [issue](https://github.com/jin-yufeng/Parser/issues/new?assignees=&labels=&template=bug_report.md&title=) 反馈  
+
 ## 功能简介 ##
 - 支持匹配 `style` 中的样式  
 - 支持 `svg`  
