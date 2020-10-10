@@ -1,450 +1,231 @@
 # Parser
-小程序富文本插件（本文档动态更新，建议加星收藏）
-## 目录 ##
-- [功能介绍](#功能介绍)
-- [使用方法](#使用方法)
-  - [插件包说明](#插件包说明)
-  - [在原生框架中使用](#在原生框架中使用)
-  - [在uni-app中使用](#在uni-app中使用)
-  - [在mpVue中使用](#在mpVue中使用)
-  - [在taro中使用](https://github.com/xPixv/Taro-ParserRichText)
-  - [在wepy中使用](#在wepy中使用)
-  - [组件属性](#组件属性)
-  - [回调函数](#回调函数)
-  - [使用外部样式](#使用外部样式)
-- [补丁包](#补丁包)
-  - [emoji](#emoji)
-  - [document](#document)
-  - [List](#List)
-- [立即体验](#立即体验)
-- [后端解析](#后端解析)
-- [二次开发](./docs/DevelopmentGuide.md)
-- [原理简介](#原理简介)
-- [许可与支持](#许可与支持)
-- [更新日志](#更新日志)
-## 功能介绍 ##
-- 支持解析`style`标签中的全局样式  
-  可以把`style`标签里的样式匹配到各标签的`style`中  
-- 支持自定义默认的标签样式  
-  可以在`tag-style`属性中设置各标签的默认效果  
-- 支持自动设置标题  
-  若存在`title`标签，将自动把`title`标签的内容设置到页面的标题上  
-- 支持添加加载提示  
-  可以在`Parser`标签内添加加载提示或动画，将在未加载完成或内容为空时显示，加载完成后自动隐藏
-- 支持动画显示效果  
-  通过设置`show-with-animation`属性可以实现内容加载完成后渐显的动画效果  
-- 支持多资源加载  
-  可以在`video`和`audio`中设置多个`source`标签，组件将按顺序进行加载，若前面的链接无法播放，将自动切换下一个链接进行加载和播放，直到最后一个链接；可用于解决平台差异，最大程度避免无法播放
+> 小程序富文本插件，详见 [文档](https://jin-yufeng.github.io/Parser)  
+
+![star](https://badgen.net/github/stars/jin-yufeng/Parser)
+![forks](https://badgen.net/github/forks/jin-yufeng/Parser)
+![last-commit](https://badgen.net/github/last-commit/jin-yufeng/Parser)
+![license](https://badgen.net/github/license/jin-yufeng/Parser)  
+
+## 测试邀请 ##
+为解决 [表格中的链接无法点击](https://jin-yufeng.github.io/Parser/#/question?id=%e8%a1%a8%e6%a0%bc%e4%b8%ad%e7%9a%84%e9%93%be%e6%8e%a5%e6%97%a0%e6%b3%95%e7%82%b9%e5%87%bb) 的问题，测试版通过 `grid` 布局模拟含有合并单元格的表格，基本解决这个问题，现邀请大家进行测试  
+微信端：  
+源码引入：[dev 版本](https://github.com/jin-yufeng/Parser/tree/develop/parser)  
+`npm` 引入：`npm install parser-wx@beta`  
+
+`uni-app` 端：  
+源码引入：[dev 版本](https://github.com/jin-yufeng/Parser/tree/develop/parser.uni)  
+
+主要关注的问题：  
+1. `grid` 布局是否在一些机型上不支持（已知微信 `pc` 端 [不支持](https://developers.weixin.qq.com/community/develop/doc/000a04a89d049839f5a994e285b800?highLine=pc%2520grid)）  
+2. 含有合并单元格且表格内含链接的表格表现是否正常  
+
+如发现问题欢迎通过 [issue](https://github.com/jin-yufeng/Parser/issues/new?assignees=&labels=&template=bug_report.md&title=) 反馈  
+
+## 功能简介 ##
+- 支持匹配 `style` 中的样式  
+- 支持 `svg`  
+- 支持锚点跳转  
+- 支持设置占位图  
+- 支持设置高清预览图  
 - 支持长按复制内容  
-  通过设置`selectable`属性可以实现长按复制任意内容  
-- 智能压缩  
-  可以智能对解析结果进行压缩，包括减小深度、去除无用的空白符等，可以有效提高性能  
-- 支持丰富的标签  
-  在`rich-text`组件的基础上，增加支持大量标签，基本覆盖所有常用标签  
-- 图片显示效果  
-  支持自动按原大小显示，点击图片可以预览（预览时通过左右滑动可以查看所有图片）；对于一些装饰性的图片，可以对其设置`ignore`属性，设置后将无法预览  
-- 链接点击效果  
-  点击`a`标签，若`href`为小程序内部页面路径，将直接跳转；若是网页链接，则可以自动复制链接；链接被点击时会触发`bindlinkpress`事件，可以在该回调中进行下载附件等更多操作  
-- 视频效果  
-  支持视频自动懒加载（当视频数量超过`3`个时，仅先加载前`3`个，避免页面卡死）；支持播放一个视频时自动暂停其他视频  
-- 支持解析各类列表  
-  可以显示各类复杂的列表结构  
-- 性能指标  
-  容错性强，稳定性高，不需要网络请求，支持无限层级，解析速度快，轻量化  
-  
-详细可见：[功能介绍](./docs/Introduction.md)
+- 支持给多媒体标签设置多个源  
+- 支持自动给链接填充主域名  
+- 支持几乎所有的 `html` 标签  
+- 支持丰富的事件和效果  
+- 轻量化、效率高、容错性强  
+- 支持多平台（微信、QQ、百度、支付宝、头条、uni-app 等）  
+...
+
+更多功能可见：[功能介绍](https://jin-yufeng.github.io/Parser/#/)
+
 ## 使用方法 ##
 ### 插件包说明 ##
 
 | 名称 | 大小 | 使用 |
 |:---:|:---:|:---:|
-| Parser | 39.2KB | 微信小程序插件包 |
-| Parser.min | 28.1KB | 微信小程序插件包压缩版（功能相同） |
-| Parser.bd | 35.9KB | 百度小程序插件包 |
-| Parser.bd.min | 26.3KB | 百度小程序插件包压缩版（功能相同） |
-| Parser.uni | 44.1KB | `uni-app` 插件包（可以编译到所有小程序平台） |
-
-- 关于百度版与微信版的差别，可见[百度版与微信版的差别](./docs/Usage.md#百度版与微信版的差别)  
-- `uni-app`版因为各平台`rich-text`和自定义组件表现有所不同，有较多条件编译的内容，编译后大小会缩小，关于各平台间的差别和与原生包的差别，可见[`uni-app`包说明](./docs/Usage.md#uni-app包说明)  
-- 可根据需要选用，使用时建议统一更名为`Parser`，以下**统称**为`Parser`  
+| parser | 40.4KB | 微信小程序插件包 |
+| parser.min | 25.6KB | 微信小程序插件包压缩版（功能相同） |
+| parser.qq | 39.9KB | QQ 小程序插件包 |
+| parser.bd | 38.3KB | 百度小程序插件包 |
+| parser.my | 38.6KB | 支付宝小程序插件包 |
+| parser.tt | 39.1KB | 头条小程序插件包 |
+| parser.uni | 57.5KB | `uni-app` 插件包（可以编译到所有平台） |
 
 ### 在原生框架中使用 ###
-1. 下载`Parser`文件夹至小程序目录  
-2. 在需要引用的页面的`json`文件中添加（百度小程序中组件名一定要**小写**）
-   ``` json
-   {
-     "usingComponents": {
-       "parser":"/Parser/index"
-     }
-   }
-   ```
-3. 在需要引用的页面的`wxml`文件中添加  
-   ``` html
-   <parser html="{{html}}" />
-   ```
-4. 在需要引用的页面的`js`文件中添加  
-   ``` javascript
-   data: {
-     html:"<div>Hello World!</div>"
-   }
-   ```
-- `demo/wx`文件夹下的是微信小程序 `富文本插件` 示例程序的源码，可供参考  
-### 在uni-app中使用 ###
-- 使用`uni-app`包（可以编译到所有小程序平台）  
-  1. 下载`Parser.uni`包到`components`目录下（更名为`Parser`）  
-  2. 在需要使用页面的`vue`文件中添加  
-     ```vue
-     <template>
-       <view>
-         <parser :html="html"></parser>
-       </view>
-     </template>
-     <script>
-     import parser from "@/components/Parser/index"
-     export default{
-       components: {
-         parser
-       },
-       data() {
-         return {
-           html: '<div>Hello World!</div>'
-         }
-       }
-     </script>
-     ```
-  - 可以直接通过插件市场引入：[插件市场](https://ext.dcloud.net.cn/plugin?id=805)
-  - `demo/uni-app`文件夹下是一个示例程序，可供参考  
-- 使用原生包  
-  参考[官网-小程序组件支持](https://uniapp.dcloud.io/frame?id=%e5%b0%8f%e7%a8%8b%e5%ba%8f%e7%bb%84%e4%bb%b6%e6%94%af%e6%8c%81)
-### 在mpVue中使用 ###
-1. 下载`Parser`文件夹至`static`目录下
-2. 在`src`目录下需要使用本插件的页面文件夹下添加`json`文件
-   ```json
-   {
+- 源码引入  
+  1. 复制 `parser` 文件夹至 `components` 目录  
+  2. 在需要使用页面的 `json` 文件中添加  
+     
+     ```json
+     {
        "usingComponents": {
-           "parser": "../../static/Parser/index"
+         "parser":"/components/parser/parser"
        }
-   }
-   ```
-3. 在需要使用的页面的`vue`文件中添加
-   ```vue
-   <template>
-     <div class="container">
-       <parser :html="html"></parser>
-     </div>
-   </template>
-   <script>
-   export default {
-     data: {
-       html: '<div>Hello World!</div>'
      }
-   }
-   </script>
-   ```
-- **注意：** 在`mpvue`和`uni-app`中使用时组件名必须**小写** 
- 
-### 在wepy中使用 ###
-测试版本：V1.7.3
-1. 将`Parser`文件夹复制到`/src/components`目录下  
-   （也可以直接复制到`/dist/components`目录下，这样`wepy`不会对插件包进行编译和压缩）    
-2. 在需要使用的页面的`wpy`文件中添加
+     ```
+  3. 在需要使用页面的 `wxml` 文件中添加  
+     
+     ```html
+     <parser html="{{html}}" />
+     ```
+  4. 在需要使用页面的 `js` 文件中添加  
+     
+     ``` javascript
+     data: {
+       html:"<div>Hello World!</div>"
+     }
+     ```
+- `npm` 引入（仅限微信，需要基础库 `2.1.1` 以上）  
+  1. 在小程序目录下执行  
+     
+     ```bash
+     npm install parser-wx
+     ```
+  2. 勾选使用 `npm` 模块，并点击工具-构建 `npm`  
+  3. 在需要使用页面的 `json` 文件中添加  
+     
+     ```json
+     {
+       "usingComponents": {
+         "parser":"parser-wx"
+       }
+     }
+     ```
+     后续步骤同上  
+
+- `demo/wx` 文件夹下的是微信小程序 `富文本插件` 示例程序的源码，可供参考  
+
+### 在 uni-app 中使用 ###
+1. 复制 `parser.uni` 包到 `components` 目录下（更名为 `jyf-parser`）  
+2. 在需要使用页面的 `vue` 文件中添加  
+   
    ```vue
    <template>
-     <view class="container">
-       <parser html="{{html}}"></parser>
+     <view>
+       <jyf-parser :html="html"></jyf-parser>
      </view>
    </template>
    <script>
-   import wepy from 'wepy'
-   export default class Index extends wepy.page {
-     config = {
-       usingComponents: {
-         'parser': '/components/Parser/index'
+   import parser from "@/components/jyf-parser/jyf-parser"; // HBuilderX 2.5.5 及以上可以不需要引入
+   export default {
+     // HBuilderX 2.5.5 及以上可以不需要引入
+     components: {
+       "jyf-parser": parser
+     },
+     data() {
+       return {
+         html: '<div>Hello World!</div>'
        }
-     }
-     data = {
-       html: '<div>Hello World!</div>',
      }
    }
    </script>
    ```
-3. 通过`wepy build --watch`命令进行编译  
-- 如果出现`Components not found`错误，则用`wepy build --no-cache --watch`命令清理缓存，重新编译  
-  
+- 可以直接通过 [插件市场](https://ext.dcloud.net.cn/plugin?id=805) 引入
+- `demo/uni-app` 文件夹下是一个示例程序，可供参考  
+
+其他框架中使用可见：[在其他框架中使用](https://jin-yufeng.github.io/Parser/#/instructions?id=在其他框架中使用)
 
 ### 组件属性 ###  
 
-  | 属性 | 类型 | 默认值 | 必填 | 说明 |
-  |:----:|:----:|:----:|:----:|----|
-  | html | String/Object/Array | | 是 | 要显示的富文本数据，具体格式见下方说明 |
-  | tag-style | Object | | 否 | 设置标签的默认样式 |
-  | autocopy | Boolean | true | 否 | 是否允许链接受到点击时自动复制链接（仅限http开头的网络链接）|
-  | autopause | Boolean | true | 否 | 是否允许播放视频时自动暂停其他视频 |
-  | autopreview | Boolean | true | 否 | 是否允许点击图片时自动预览 |
-  | autosetTitle | Boolean | true | 否 | 是否自动将title标签的内容设置到页面标题上 |
-  | img-mode | String | default | 否 | 图片显示模式 |
-  | lazy-load | Boolean | false | 否 | 是否开启图片懒加载 |
-  | selectable | Boolean | false | 否 | 是否允许长按复制内容 |
-  | show-with-animation | Boolean | false | 否 | 是否使用渐显动画 |
-  | animation-duration | Number | 400 | 否 | 动画持续时间 |
+| 属性 | 类型 | 默认值 | 说明 |
+|:----:|:----:|:----:|----|
+| html | String |  | 要显示的 html 字符串 |
+| autopause | Boolean | true | 是否允许播放视频时自动暂停其他视频 |
+| autoscroll | Boolean | false | 是否自动给 table 加一个滚动层（使表格可以单独滚动） |
+| autosetTitle | Boolean | true | 是否自动将 title 标签的内容设置到页面标题 |
+| compress | Number | 0 | 压缩等级，可以选择是否移除 id 和 class |
+| domain | String |  | 主域名，设置后将给链接自动拼接主域名或协议名 |
+| lazy-load | Boolean | false | 是否开启图片懒加载 |
+| loading-img | String |  | 图片加载完成前的占位图，详见 [占位图](https://jin-yufeng.github.io/Parser/#/#设置占位图) |
+| selectable | Boolean | false | 是否允许长按复制内容 |
+| show-with-animation | Boolean | false | 是否使用渐显动画 |
+| tag-style | Object |  | 设置标签的默认样式 |
+| use-anchor | Boolean | false | 是否使用页面内锚点 |
+| use-cache | Boolean | false | 是否使用缓存，设置后多次打开不用重复解析 |
   
-  - html格式：
-    1. `string`类型：一个`html`字符串，例如：`<div>Hello World!</div>`
-    2. `object`类型：一个形如`{nodes: [Array], imgList: [Array], title: "String"}`的结构体，其中`nodes`数组的格式基本同[rich-text](https://developers.weixin.qq.com/miniprogram/dev/component/rich-text.html)，对于该节点下有`img`，`video`，`a`标签的，需要将`continue`属性设置为`true`，否则将直接使用`rich-text`组件渲染，可能导致图片无法预览，链接无法点击等问题，`imgList`为其中所有图片地址的数组，`title`是页面的标题（不必要，传入将会设置到页面的标题上），回调函数`bindparser`的返回值就是这样的结构体
-    3. `array`类型：格式要求同上（用此格式传入预览图片时，将`不能`通过左右滑动查看所有图片）  
-    4. 使用b, c方法可以节省解析的时间，提高性能
-  - 关于img-mode  
-    默认`default`，在没有设置宽高时，按图片原大小显示；设置了宽或高时，按比例进行缩放；同时设置了宽高时，按设置的宽高进行缩放。在同时设置了宽高的情况下，宽度可能因为`max-width:100%`的限制而缩短导致图片变形，此时可将模式设置为`widthFix`，即保持宽度不变，高度自动变化（会导致设置的高度无效）
-  - 关于tag-style  
-    可以设置标签的默认样式，如`{ body:"margin:5px" }`；仅传入的`html`为`String`类型时有效（在解析过程中设置）  
+详细可见：[组件属性](https://jin-yufeng.github.io/Parser/#/instructions?id=组件属性)
 
-### 回调函数 ###
+### 事件 ###
 
 | 名称 | 功能 | 说明 |
 |:----:|----|----|
-| bindparser | 在解析完成时调用（仅当传入的`html`为`String`时会调用） | 返回一个`object`，其中`nodes`为解析后的节点数组，`imgList`为图片列表，`title`是页面标题，该`object`可以在下次调用直接作为`html`属性的值，节省解析的时间 |
-| bindready | 渲染完成时调用 | 返回整个组件的`NodesRef`结构体，包含宽度、高度、位置等信息（每次`html`修改后都会触发） |
-| binderror | 出错时调用 | 返回一个`object`，其中`source`是错误来源（`ad`广告出错、`video`视频加载出错、`audio`音频加载出错、`parse`解析过程中出错），`errMsg`为错误信息，`errCode`是错误代码（仅`ad`），`target`包含出错标签的具体信息 |
-| bindimgtap | 在图片受到点击时调用 | 返回一个形如`{src:...}`的结构体（`src`是图片链接），可用于阻挡`onShow`的调用 |
-| bindlinkpress | 在链接受到点击时调用 | 返回一个形如`{href:...}`的结构体（`href`是链接地址），开发者可以在该回调中进行进一步操作，如下载文档和打开等 |  
-  
-更多信息可见：[使用方法](./docs/Usage.md)
+| bindparse | 解析完成时触发 | 返回解析结果，可以对该结果进行自定义修改，将在渲染时生效 |
+| bindload | dom 加载完成时触发 | 所有节点被添加到节点树中时触发，无返回值，可以调用 api |
+| bindready | 渲染完成时触发 | 返回 boundingClientRect 的查询结果（包含宽高、位置等信息），所有图片（除懒加载）加载完成时才会触发，图片较大时可能 **延时较长** |
+| binderror | 出错时触发 | 返回一个 object，其中 source 是错误来源，errMsg 为错误信息，target 包含出错标签的具体信息 |
+| bindimgtap | 图片被点击时触发 | 返回一个 object，其中 src 是图片链接，ignore 是一个函数，在回调函数中调用将不进行预览 |
+| bindlinkpress | 链接被点击时触发 | 返回一个 object，其中 href 是链接地址，ignore 是一个函数，在回调中调用将不自动跳转/复制 |  
 
+详细可见：[事件](https://jin-yufeng.github.io/Parser/#/instructions?id=事件)
+  
 ### 使用外部样式 ###
-如果需要使用一些固定的样式，可以通过`wxss` / `css`文件引入  
-在`/Parser/trees/trees.wxss(css)`中通过`@import`引入自定义的样式文件即可  
+如果需要使用一些固定的样式，可以通过 `wxss` / `css` 文件引入  
+在 `parser/trees/trees.wxss(css)` 中通过 `@import` 引入自定义的样式文件即可  
 ```css
 /*
-* Parser/trees/trees.wxss(css)
+* parser/trees/trees.wxss(css)
 * 在这里引入您的自定义样式
 */
 @import "external.wxss(css)";
 ```
-注意事项：  
-1. 由于只有自定义组件内的样式在组件内能生效且`rich-text`在组件内使用时也只能匹配组件内的样式，所以必须在`trees`组件的`wxss`/`css`文件中引入需要的样式，在页面中写的样式无效  
-2. 组件内只能使用`class`选择器（支持后代选择器），不支持`id`选择器、属性选择器、标签名选择器等（更多可见[官网说明](https://developers.weixin.qq.com/miniprogram/dev/framework/custom-component/wxml-wxss.html)）  
-3. 通过这种方式引入的样式会对所有`parser`标签生效，如果是对单个`parser`使用的样式，请使用`style`标签  
 
-## 补丁包 ##
-`patches`文件夹中准备了一些补丁包，可根据需要选用，可以实现更加丰富的功能  
+更多信息可见：[使用方法](https://jin-yufeng.github.io/Parser/#/instructions)
 
-### emoji ###  
-- 功能  
-  将形如`[笑脸]`的文本解析为`emoji`小表情  
-- 大小  
-  `4.66KB`（`min`版本`3.59KB`）  
-- 使用方法  
-  将`emoji.js`复制到`Parser`文件夹下即可（若使用`min`版本也要改名为`emoji.js`）  
-  默认配置中支持`176`个常用的`emoji`小表情  
-  支持两种形式的`emoji`，一是`emoji`字符（不同设备上显示的样子可能不同），或者是网络图片（将按照`16px` × `16px`的大小显示，且不可放大预览），默认配置中都是`emoji`字符，可使用以下`api`获取或修改：  
-  ```javascript
-  const parserEmoji = require("path/Parser/emoji.js");
-  console.log(parserEmoji.getEmoji("笑脸")); //笑脸的emoji字符
-  parserEmoji.removeEmoji("笑脸"); //移除笑脸emoji
-  parserEmoji.setEmoji("哈哈","https://example.png"); //设置emoji，支持emoji字符或网络图片
-  ```  
-  ![emoji演示](https://i.imgur.com/Uc2ZHoH.png)  
-### document ###  
-- 功能  
-  实现类似于`web`中的`document`对象，可以动态操作`DOM`  
-- 大小  
-  `4.66KB`（`min`版本`3.61KB`）  
-- 使用方法  
-  将`document.js`复制到`Parser`文件夹下即可（若使用`min`版本也要改名为`document.js`）  
-  - `document` 类  
-    获取方式：可通过 `this.selectComponent("#id").document` 获取  
-    `Api`列表:   
+## 扩展包 ##
+`patches` 文件夹中准备了一些扩展包，可根据需要选用，可以实现更加丰富的功能  
+具体信息见：[扩展包](https://jin-yufeng.github.io/Parser/#/instructions?id=扩展包)
 
-    | 名称 | 输入值 | 返回值 | 功能 |
-    |:---:|:---:|:---:|:---:|
-    | getElementById | id | element | 按照`id`查找`element` |
-    | getChildren | i | element | 获取根节点的第`i`个子节点的`element`实例 | 
-  - `element` 类  
-    属性名：
+## 案例体验 ##
 
-    | 名称 | 功能 |
-    |:---:|---|
-    | id | 该节点的id值 |
-    | nodes | 该节点的结构体，可以直接对这个结构体进行修改（修改后需要调用`update`方法同步到`UI`，修改时要注意格式，更建议使用下方的`api`方法进行修改） |
+| [富文本插件](https://github.com/jin-yufeng/Parser/tree/master/demo/wx) | [程序员技术之旅](https://github.com/fendoudebb/z-blog-wx) | [极客时代](https://github.com/GeekEra/GBlog-wx) | APP 比比 | 全品作业小助手 | 多么生活 |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| <img src="https://6874-html-foe72-1259071903.tcb.qcloud.la/md/md5.jpg?sign=911a1fd62af2666f9c8dfa367b22479c&t=1574499374" width="200" alt="富文本插件"> | <img src="https://user-images.githubusercontent.com/16144460/74083526-0528bc80-4aa0-11ea-841f-a974c5f9131d.jpg" width="200" alt="程序员技术之旅"> | <img src="https://camo.githubusercontent.com/f15b6b8854ae6d7fc4ceea552b79e326d5036978/68747470733a2f2f63646e2e66757a75692e6e65742f626c6f672f7172636f64655f313539323230383033333536372e6a7067" width="200" alt="极客时代"> | <img src="https://user-images.githubusercontent.com/5304020/80313264-70229d80-881c-11ea-8d8f-aed45719aed5.jpg" width="200" alt="APP 比比"> | <img src="https://user-images.githubusercontent.com/21222276/80563130-b3e3f580-8a1c-11ea-9a07-7671ea5aa320.jpg" width="200" alt="全品作业小助手"> | <img src="https://user-images.githubusercontent.com/16403746/69929565-665d6e00-14fa-11ea-807a-8d9050caf342.jpg" width="200" alt="多么生活"> |
 
-    `Api`列表：
+| 欢喜商城 | 古典文学名著阅读 | 典典博客 | 咚咚阅读 | 源创智造 |  |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| <img src="https://user-images.githubusercontent.com/13982274/89155296-1e1bb180-d59b-11ea-8fe7-8ae2c298d736.png" width="200" alt="欢喜商城"> | <img src="https://camo.githubusercontent.com/bb2aa4562a8b4912c82129f10ff15d1eb4ce0d08/68747470733a2f2f63646e2e6e6c61726b2e636f6d2f79757175652f302f323031392f6a7065672f3432383733322f313537353830303731333133312d36326639663836362d366233362d343766312d396234302d6132633964373839616633362e6a706567" width="200" alt="古典文学名著阅读"> | <img src="https://6874-html-foe72-1259071903.tcb.qcloud.la/%E5%85%B8%E5%85%B8%E5%8D%9A%E5%AE%A2.jpg?sign=5b2d371a4bd840c14c8d3740c35ee07f&t=1586360436" width="200" alt="典典博客"> | <img src="https://user-images.githubusercontent.com/7794149/84689281-575c7b80-af73-11ea-9035-6b3fcb3a3e5b.png " width="200" alt="咚咚阅读"> | <img src="https://6874-html-foe72-1259071903.tcb.qcloud.la/%E6%BA%90%E5%88%9B%E6%99%BA%E9%80%A0.png?sign=71b39d28c444259a7204bc14a8091135&t=1593401495" width="200" alt="源创智造"> | <img width="200"> |
 
-    | 名称 | 输入值 | 返回值 | 功能 |
-    |:---:|:---:|:---:|:---:|
-    | getText |   | text | 获取文本内容（仅直接包含文本的标签可用） |
-    | setText | text |   | 修改文本内容（仅直接包含文本的标签可用） |
-    | addChildren | nodes, i |   | 在第`i`个位置添加子节点，`nodes`为一个结构体，格式同`rich-text` |
-    | removeChildren | i |   | 移除第`i`个子节点 |
-    | getChildren | i |   | 获取第`i`个子节点的`element`示例 |
-    | getAttr | key | attr | 获取某个属性值 |
-    | setAttr | key, value |   | 设置某个属性值 |
-    | getElementById | id | element | 在子节点中按照`id`查找`element` |
-    | update |   |   | 若修改了`element.nodes`需要调用此方法同步到`UI` |
+以上排名不分先后，更多可见：[链接](https://github.com/jin-yufeng/Parser/issues/27)（欢迎添加）  
 
-  - 返回格式  
-    若执行成功，返回`{ok:true, data:...}`；若不成功，返回`{ok:false, errCode:..., errMsg:...}`  
-    错误码
-
-    | 错误码 | 含义 |
-    |:---:|:---:|
-    | 1 | 对没有直接包含`text`的标签执行`getText`或`setText` |
-    | 2 | 输入值类型不正确 |
-    | 3 | 输入值超出范围 |
-    | 4 | 无法找到对应`id`的节点 |
-
-- 注意事项  
-  所有方法必须在`html`被`setData`完成后才能调用  
-  每次执行除了`get`以外的方法都需要进行一次局部的`setData`更新，请不要过于频繁的调用，否则可能影响性能。
-- 综合示例  
-  ```html
-  <Parser id="article" html="{{html}}" binderror="error" />
-  ```
-  ``` javascript
-  data:{
-    html:'...<div id="adContainer"><ad unit-id="..."></ad></div>...'
-  }
-  error(e){
-    // 广告组件加载出错
-    if(e.detail.source == "ad"){
-      // 获取document
-      var document = this.selectComponent("#article").document;
-      // 查找广告框容器
-      var res = document.getElementById("adContainer");
-      if (res.ok)
-        res.data.setAttr("style","display:none"); // 隐藏广告容器
-      else
-        console.error(res.errMsg); // 查找失败
-    }
-  }
-  ```
-### List ### 
-- 背景  
-  在原插件中，由于列表较难通过模拟实现，是直接使用`rich-text`来显示列表，这导致列表中的图片无法预览，链接无法点击，此补丁包可以解决这个问题  
-- 功能  
-  模拟`ol`、`ul`、`li`标签  
-  `ol`标签支持`start`和`type`属性；`ul`标签会自动根据层级显示不同的样式  
-- 大小  
-  `4.50KB`  
-- 此补丁包**仅能**在微信小程序中使用  
-- 使用方法  
-  1. 将`list`文件夹复制到`Parser`文件夹下  
-  2. 将`trees.li.wxml`中的内容复制到`Parser/trees/trees.wxml`中`name`为`element`的`template`中的任意位置
-  3. 在`Parser/trees/handler.wxs`中的`isContinue`函数中进行如下修改  
-     ```javascript
-     // else if(item.name=='a')
-     else if(item.name=='a'||item.name=='li'||item.name=='ol'||item.name=='ul')
-     ```
-  4. 在`Parser/trees/trees.json`中添加
-     ```json
-     "usingComponents": {
-       "trees": "./trees",
-       "ol": "../list/ol",
-       "ul": "../list/ul",
-       "li": "../list/li"
-     }
-     ```  
-  5. 将`Parser/DomHandler.js`中`trustTag`结构体的`ol`、`ul`、`li`属性值改为`1`  
-  - 可参考`demo`文件夹中的`Parser`（已装载此补丁包）  
-- 在其他页面中使用  
-  该包将列表封装成自定义组件，可以直接在其他页面上使用  
-  1. 在需要使用的页面的`json`文件中添加
-     ```json
-     {
-       "usingComponents": {
-         "ol": "/Parser/list/ol",
-         "ul": "/Parser/list/ul",
-         "li": "/Parser/list/li"
-       }
-     }
-     ```
-  2. 可以直接使用`ol`、`ul`、`li`标签来显示列表  
-     ```html
-     <ol>
-  	   <li>类型1-1</li>
-       <li>类型1-2</li>
-     </ol>
-     <ol type="A" start="3" style="margin-top:5px;">
-       <li>类型2-3</li>
-       <li>类型2-4</li>
-     </ol>
-     <ol type="I" start="5" style="margin-top:5px;">
-       <li>类型3-5</li>
-       <li>类型3-6</li>
-     </ol>
-     <ul style="margin-top:10px">
-       <li>层级1
-         <ul>
-           <li>层级2
-             <ul><li>层级3</li></ul>
-           </li>
-         </ul>
-       </li>
-     </ul>
-     ```
-     ![列表演示](https://i.imgur.com/xgCAdzj.png)
-
-## 立即体验 ##
-![体验小程序](https://i.imgur.com/t3uXihW.jpg)  
-
-## 后端解析 ##
-&emsp;&emsp;本插件提供了一个配套的后端`node.js`支持包，可以提供更加强大的功能，如匹配多层的`style`，代码高亮，直接打开网址，解析`markdown`等，其返回值可以直接作为本组件的`html`属性的值；且在后端提前完成解析后可以节省解析时间，提高性能。  
-**注意：该包需要node.js v7.6.0以上运行环境，无法直接在小程序前端使用，建议部署在服务器或云函数上**  
-在百度小程序和头条小程序中使用时需要将`options`中的`setContain`设置为`true`    
-安装方法：
-```cmd
-npm install parser-wxapp
-```
-使用方法：
-```javascript
-const parser=require('parser-wxapp');
-var html="<div>Hello World!</div>";
-parser(html).then(function(res){
-  console.log(res);
-})
-```
-详细文档参考： [npm链接](https://www.npmjs.com/package/parser-wxapp)
-
-## 原理简介 ##
-&emsp;&emsp;该插件对`rich-text`组件进行了二次封装，对于节点下有`img`, `video`, `a`标签的，使用自定义组件递归的方式显示，否则直接通过`rich-text`组件显示，这样既解决了`WxParse`中过多的标签数（`rich-text`可以节省大量的标签），层数容易不够（自定义组件递归可以显示无限层级），无法解析表格，一些组件显示格式不正确（`rich-text`可以解析出更好的效果）等缺点；也弥补了`rich-text`图片无法预览，无法显示视频，无法复制链接，部分标签不支持（在解析过程中进行替换）等缺点，另外该解析脚本还减小了包的大小，提高了解析效率，通过包装成一个自定义组件，简单易用且功能强大。  
-更多可见：[《小程序富文本能力的深入研究与应用》](https://developers.weixin.qq.com/community/develop/article/doc/0006e05c1e8dd80b78a8d49f356413)
+相关项目：  
+[EastWorld/wechat-app-mall](https://github.com/EastWorld/wechat-app-mall)  
+[YanxinNet/uView](https://github.com/YanxinNet/uView)  
+[zhangdaren/miniprogram-to-uniapp](https://github.com/zhangdaren/miniprogram-to-uniapp)  
+[woniudiancang/bee](https://gitee.com/woniudiancang/bee)  
 
 ## 许可与支持 ##
-您可以随意的使用和分享本插件  
-![支持](https://i.imgur.com/ASMBhWI.png)  
+- 许可  
+  您可以随意的使用和分享本插件 [MIT License](https://github.com/jin-yufeng/Parser/blob/master/LICENSE)  
+  不可用于任何违法用途  
+  在用于生产环境前务必经过充分测试，由插件 `bug` 带来的损失概不负责（可以自行修改源码）  
+
+- 支持  
+  ![支持](https://6874-html-foe72-1259071903.tcb.qcloud.la/md/md6.png?sign=24395ad7572c19464db67d8997e3b2d2&t=1574502139)   
 
 
 ## 更新日志 ##
-- 2019.9.28:
-  1. `A` 增加了`lazy-load`属性（可用于图片懒加载）  
-- 2019.9.25:
-  1. `A` 增加了`uni-app`插件包（可以编译到所有小程序平台）[详细](#在uni-app中使用)    
-  2. `F` 修复了部分情况下样式显示错误的问题  
-- 2019.9.22:
-  1. `U` 支持引入`wxss` / `css`文件中的外部样式 [详细](#使用外部样式)  
-- 2019.9.21:
-  1. `A` 增加了百度小程序插件包 [详细](#插件包说明)  
-  2. `U` 为与百度小程序包统一，所有事件的返回值改为`object`类型（影响`bindimgtap`和`bindlinkpress`） [详细](#回调函数)  
-  3. `U` 优化了补丁包的引入方式
-  4. `F` 修复了`autopause`属性在某些情况下会失效的问题  
-- 2019.9.18:
-  1. `A` 增加了在`wepy`中的使用方法 [详细](#在wepy中使用)  
-  2. `F` 修复了部分情况下`style`标签解析时由于缺少`;`导致错误样式匹配失败的问题
-  2. `F` 修复了`0917`版本中`a`标签失效的问题  
-- 2019.9.17:
-  1. `A` 增加了`list`补丁包（可用于模拟列表） [详细](#List)  
-  2. `A` `video`组件增加支持`unit-id`属性（前插视频广告）  
-  3. `F` 修复了部分情况下图片会被`text-indent`错误缩进的问题  
-- 2019.9.15:
-  1. `A` 增加了`document`补丁包（可用于动态操作`DOM`） [详细](#document) 
-  2. `A` 增加支持小程序广告`ad`组件（可显示文中广告）  
-- 2019.9.13:
-  1. `A` 增加了`emoji`补丁包（可用于解析小表情） [详细](#emoji)  
-  2. `A` 增加了`autopreview`属性（可用于控制点击图片时是否自动预览，默认`true`）和`imgtap`事件（图片被点击时触发）
-  3. `A` 提供了一个`min`版本（`27.3KB`，功能上无差别）
-  3. `U` 缩小了节点深度（约`15%~35%`，主要是通过合并一些只有一个子节点的标签以及优化排版方式），优化了性能
-  4. `U` 缩小了解析结果的大小（约`3%~5%`）
-  5. `F` 修复了解析完成后传入的`tagStyle`会被修改的问题
-  6. `F` 修复了存在多张相同`url`图片时，进行预览会出现定位错误的问题
-  7. `F` 修复了部分情况下`html`中的换行符会被显示的问题
+- 2020.8.28  
+  1. `U` `img` 标签支持通过 `original-src` 属性设置预览时的图片地址 [详细](https://jin-yufeng.github.io/Parser/#/#设置高清预览图)  
+  2. `F` 修复了 `img` 标签 `width` 和 `height` 属性使用非 `px` 单位时没有被转为 `px` 的问题 [详细](https://github.com/jin-yufeng/Parser/issues/188)  
+  3. `F` 修复了 `uni-app` 包 `NVUE` 端编译到安卓时若含有 `%` 会被转义的问题  
+  4. `F` 修复了 [打包工具](https://jin-yufeng.github.io/Parser/#/instructions#打包工具) 未关闭前生成的文件被占用的问题  
 
-更多可见：[更新日志](./docs/Update.md)
+- 2020.7.28  
+  1. `A` 增加了 `search` 的扩展包，可以进行关键词搜索并高亮显示 [详细](https://jin-yufeng.github.io/Parser/#/instructions#search)  
+  2. `U` 优化了解析过程，含有换行的空字符串将被去除以减小大小    
+  3. `U` 优化了 `uni-app` 包 `config.js` 的写法，避免格式化后可能报错的问题  
+  4. `F` 修复了 `getText` 方法可能无法使用的问题  
+  5. `F` 修复了 `ul` 中的 `li` 的黑块可能被复制的问题  
+  6. `F` 修复了通过 `document` 扩展包进行修改时设置了懒加载的图片可能闪一下的问题  
+  7. `F` 修复了 `uni-app` 包从一个文本节点变为元素节点时可能不显示的问题  
+  8. `F` 修复了 `uni-app` 包 `NVUE` 页面编译到小程序时列表可能显示不正常的问题  
+
+- 2020.7.19  
+  1. `A` 发布了微信端的 `npm` 包 [详细](https://www.npmjs.com/package/parser-wx)  
+  2. `U` `uni-app` 包 `H5` 端图片设置的宽度超出屏幕宽度时自动将高度设置为 `auto`，避免变形  
+  3. `U` 优化了 `uni-app` 包支付宝端的处理方式，减少了层级  
+  4. `F` 修复了 `svg` 的 `viewBox` 属性小写不生效的问题 [详细](https://github.com/jin-yufeng/Parser/issues/171)  
+  5. `F` 修复了图片层级过高，无法被遮盖的问题  
+  6. `F` 修复了 `uni-app` 包 `NVUE` 端多次设置数据可能闪烁的问题  
+
+更多可见：[更新日志](https://jin-yufeng.github.io/Parser/#/changelog)

@@ -1,4 +1,0 @@
-<!--index/ul.wxml-->
-<view catchaddul="addul">
-  <slot />
-</view>

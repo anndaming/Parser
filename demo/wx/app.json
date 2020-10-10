@@ -1,17 +1,15 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/component/component",
-    "pages/nodejs/nodejs",
+    "pages/docs/docs",
     "pages/demo/demo",
-    "pages/test/test",
-    "pages/question/question"
+    "pages/test/test"
   ],
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#fff",
+    "navigationBarBackgroundColor": "#f8f8f8",
     "navigationBarTitleText": "富文本插件",
     "navigationBarTextStyle": "black"
   },
-  "sitemapLocation": "sitemap.json"
+  "lazyCodeLoading": "requiredComponents"
 }
